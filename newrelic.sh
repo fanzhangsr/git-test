@@ -12,7 +12,7 @@ REVISION=$4
 
 # NewRelic API_KEY is unique and tied to HBC Digital account with newrelic.
 # It should not change. But in case it changes, please update the following
-API_KEY=d9e556c8623142c6a7c5b4f8807ee8194dab65480353c4e
+API_KEY=d9e556c8623142c6a
 
 echo USER=$USER
 echo REVISION=$REVISION
