@@ -1,0 +1,53 @@
+$cat QA-O5A-Apache.yml
+---
+- hosts: hd1qweb21lx:hd1qweb22lx
+  user: root
+  connection: ssh
+  gather_facts: no
+  any_errors_fatal: true
+  serial: 1
+
+  tasks:
+
+  - name: Removing conf directory from target
+    file:
+      path: /etc/httpd/conf
+      state: absent
+    register: clear_configs1
+    ignore_errors: True
+
+  - name: Copying over conf directory to target
+    copy:
+      src=/var/lib/jenkins/workspace/{{repo}}/conf
+      dest=/etc/httpd/
+
+
+  - name: Removing conf.d directory from target
+    file:
+      path: /etc/httpd/conf.d
+      state: absent
+    register: clear_configs2
+    ignore_errors: True
+
+  - name: Copying over conf.d directory to target
+    copy:
+      src=/var/lib/jenkins/workspace/{{repo}}/conf.d
+      dest=/etc/httpd/
+
+
+  - name: Checking Apache config
+    command: service httpd configtest
+    register: config_test
+
+  - name: Ensure Apache is running
+    service: name=httpd state=started enabled=yes
+    ignore_errors: yes
+
+  - name: Reloading Apache with new configs before proceedinf to intended target...
+    service: name=httpd state=reloaded enabled=yes
+    when: config_test.stdout.find('Syntax Ok')
+
+  - name: Making sure listening on 443
+    wait_for:
+      port: 443
+      delay: 1
